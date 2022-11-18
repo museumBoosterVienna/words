@@ -4,6 +4,7 @@ let content;
 let emotions;
 let industry;
 
+
 async function test(){
    let responseFormat = await fetch('./words/format.json');
    if (responseFormat.ok) {
@@ -64,10 +65,8 @@ Array.prototype.forEach.call(Lists, list => {
    list.style.top = `-${textHeight+1}px`
    const childs = list.querySelectorAll('.slot__item-text');
    let finalText;
-   for (let i = 0; i < 1; i++){
-      let wordsList = words[parseInt(list.dataset.index)];
-      wordsList.forEach(word => finalText = `${finalText} <li class="slot__item-text"><span>${word}</span></li>`)
-   }
+   let wordsList = words[parseInt(list.dataset.index)];
+   wordsList.forEach(word => finalText = `${finalText} <li class="slot__item-text"><span>${word}</span></li>`)
    list.insertAdjacentHTML('beforeEnd', finalText);
    randomizeChildren(list);
    list.querySelectorAll('.slot__item-text')[list.querySelectorAll('.slot__item-text').length-3].classList.add('active');
@@ -91,6 +90,11 @@ buttonsBottom.forEach(element => element.addEventListener('click', function(e){
 }));
 
 // Функция которая движет слот по нажатию на кнопку движения слотом
+let topIndex = 0;
+let bottomIndex = 0;
+
+console.log(topIndex);
+console.log(topIndex);
 function moveSlot(element, isPositive){ 
    const parent = element.closest('.slot__item');
    const slotList = parent.querySelector('.slot__item-list');
@@ -104,10 +108,11 @@ function moveSlot(element, isPositive){
 
    if (isPositive){
       if (activeTextIndex == slotTexts.length-2){
-         const randomChild = slotList.querySelectorAll('.slot__item-text')[getRandomInt(0, slotList.querySelectorAll('.slot__item-text').length)];
-         slotList.insertAdjacentHTML('beforeEnd', `<li class="slot__item-text">${randomChild.innerHTML}</li>`);
+         const randomChild = slotList.querySelectorAll('.slot__item-text')[bottomIndex];
+         bottomIndex++;
          slotList.style.transform = `translate(0, ${currentPosition+=textHeight}px)`;
          slotList.style.top = `${parseInt(slotList.style.top.replace(/[^-\d]/g, ''))-textHeight}px`;
+         slotList.insertAdjacentHTML('beforeEnd', `<li class="slot__item-text">${randomChild.innerHTML}</li>`);
 
          slotTexts[activeTextIndex+1].classList.add('active');
       }else{
@@ -115,13 +120,14 @@ function moveSlot(element, isPositive){
          slotList.style.transform = `translate(0, ${currentPosition+=textHeight}px)`;
       }
    }else if (!isPositive){
-      if(activeTextIndex == 1){
-
-            const randomChild = slotList.querySelectorAll('.slot__item-text')[getRandomInt(0, slotList.querySelectorAll('.slot__item-text').length)];
-            slotList.insertAdjacentHTML('beforeEnd', `<li class="slot__item-text">${randomChild.innerHTML}</li>`);
+      if(activeTextIndex == 2){
+            const randomChild = slotList.querySelectorAll('.slot__item-text')[slotList.querySelectorAll('.slot__item-text').length-topIndex];
+            topIndex++;
+            console.log(topIndex);
             slotList.style.transform = `translate(0, ${currentPosition-=textHeight}px)`;
-            slotList.style.top = `${parseInt(slotList.style.top.replace(/[^-\d]/g, ''))+textHeight}px`;
-            slotTexts[activeTextIndex+1].classList.add('active');
+            slotList.insertAdjacentHTML('afterBegin', `<li class="slot__item-text">${randomChild.innerHTML}</li>`);
+
+            slotTexts[activeTextIndex].classList.add('active');
 
       }else{
          slotTexts[activeTextIndex-1].classList.add('active');
@@ -146,9 +152,14 @@ function autoSpin(){
       
       let wordsList = words[parseInt(slotList.dataset.index)];
       let finalText = `<li class="slot__item-text"><span>${wordsList[0]}</span></li>`;
+
+      let rand = 0;
       for (let i = 0; i != scrollTo; i++){
-         const rand = getRandomInt(0, wordsList.length-1);
          if (wordsList[rand]){
+            rand++;
+            if (rand == wordsList.length){
+               rand = 0;
+            }
             finalText = `${finalText} <li class="slot__item-text"><span>${wordsList[rand]}</span></li>`
          }
       }
@@ -219,17 +230,6 @@ function randomizeChildren (nodeX) {
 };
 
 // Функция которая возвращает позицию курсора
-function getPosition(e){
- 
-	if (!e) {
-		var e = window.event;
-	}
-
-   let x = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
-   let y = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
- 
-	return {x: x, y: y}
-}
 
 }
 test();
